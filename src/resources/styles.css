@@ -1,0 +1,16 @@
+.candle {
+    
+}
+.demo-graph {
+    width: 500px;
+    height: 250px;
+    color: #00b9d8;
+    display: inline-block;
+}
+.demo-chart {
+    color: #EF3C79;
+    display: inline-block;
+}
+.demo-chart svg {
+    mask: url(#piemask);
+}

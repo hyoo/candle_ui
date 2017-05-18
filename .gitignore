@@ -1,0 +1,5 @@
+.DS_Store
+elm-stuff/
+api/
+yarn.lock
+node_modules/
