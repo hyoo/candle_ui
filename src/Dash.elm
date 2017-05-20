@@ -33,15 +33,16 @@ view model =
                     [ Button.render Mdl
                         [ 1, 0 ]
                         model.mdl
-                        [ Button.ripple, Button.accent,
-                          Options.onClick (Msgs.ChangeLocation (benchmarkPath "P1B1"))
+                        [ Button.ripple
+                        , Button.accent
+                        , Options.onClick (Msgs.ChangeLocation (benchmarkPath "P1B1"))
                         ]
                         [ text "read more" ]
                     ]
                 ]
             ]
         , Grid.cell [ Grid.size Grid.All 4 ]
-            [Card.view [ Elevation.e2 ]
+            [ Card.view [ Elevation.e2 ]
                 [ Card.title [] [ Card.head [] [ text "P1B2" ] ]
                 , Card.text []
                     [ text "Sparse Classifier Disease Type Prediction from Somatic SNPs"
@@ -56,7 +57,7 @@ view model =
                 ]
             ]
         , Grid.cell [ Grid.size Grid.All 4 ]
-            [Card.view [ Elevation.e2 ]
+            [ Card.view [ Elevation.e2 ]
                 [ Card.title [] [ Card.head [] [ text "P1B3" ] ]
                 , Card.text []
                     [ text "MLP Regression Drug Response Prediction"

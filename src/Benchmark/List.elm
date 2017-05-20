@@ -6,7 +6,8 @@ import Msgs exposing (..)
 import Material.Table as Table
 import Material.Button as Button
 import Material.Options as Options exposing (css)
-import Routing exposing(experimentPath)
+import Routing exposing (experimentPath)
+
 
 view : Model -> Html Msg
 view model =
@@ -32,7 +33,8 @@ renderTable model =
                 , Table.th [] [ text "Action" ]
                 ]
             ]
-          -- , Table.tbody [] (List.map (renderRow model) patients)
+
+        -- , Table.tbody [] (List.map (renderRow model) patients)
         , Table.tbody [] [ renderRow model ]
         ]
 
@@ -62,7 +64,11 @@ renderRow model =
         , Table.td [] [ text "Finished" ]
         , Table.td [] [ text "2017-05-16" ]
         , Table.td [] [ text "2017-05-17" ]
-        , Table.td [] [ Button.render Mdl [ 1 ] model.mdl 
-            [ Button.ripple, Options.onClick (Msgs.ChangeLocation (experimentPath "p1b1_es1_exp1_0004")) ]
-            [ text "view" ] ]
+        , Table.td []
+            [ Button.render Mdl
+                [ 1 ]
+                model.mdl
+                [ Button.ripple, Options.onClick (Msgs.ChangeLocation (experimentPath "p1b1_es1_exp1_0004")) ]
+                [ text "view" ]
+            ]
         ]

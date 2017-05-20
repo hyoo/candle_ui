@@ -1,5 +1,4 @@
-module Experiment.List exposing (..) 
-
+module Experiment.List exposing (..)
 
 import Html exposing (..)
 import Models exposing (..)
@@ -8,11 +7,15 @@ import Material.Table as Table
 import Material.Button as Button
 import Material.Options as Options exposing (css)
 import Material.Dialog as Dialog
+
+
 -- import Routing exposing(experimentPath)
+
 
 view : Model -> Html Msg
 view model =
     renderTable model
+
 
 renderTable : Model -> Html Msg
 renderTable model =
@@ -43,9 +46,13 @@ renderRow model =
         , Table.td [] [ text "Running" ]
         , Table.td [] [ text "0.87" ]
         , Table.td [] [ text "0.00242" ]
-        , Table.td [] [ Button.render Mdl [ 1 ] model.mdl 
-            [ Button.ripple --, Options.onClick (Msgs.ChangeLocation (experimentPath "p1b1_es1_exp1_0004")) 
-            , Dialog.openOn "click"
+        , Table.td []
+            [ Button.render Mdl
+                [ 1 ]
+                model.mdl
+                [ Button.ripple --, Options.onClick (Msgs.ChangeLocation (experimentPath "p1b1_es1_exp1_0004"))
+                , Dialog.openOn "click"
+                ]
+                [ text "detail" ]
             ]
-            [ text "detail" ] ]
         ]

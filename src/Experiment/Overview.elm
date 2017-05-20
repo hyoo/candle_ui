@@ -35,4 +35,3 @@ view model =
                 ]
             ]
         ]
-
