@@ -1,11 +1,7 @@
-module DemoChart exposing (..)
+module DemoChart exposing (renderPieChart, renderLineChart)
 
-import Html.Attributes
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-
-
--- import Svg.Extra exposing (..)
 
 
 renderPieChart : Svg msg
@@ -29,6 +25,8 @@ renderPieChart =
             , tspan [ dy "-0.07", fontSize "0.2" ] [ text "%" ]
             ]
         ]
+
+
 
 {-
    <mask id="piemask" maskContentUnits="objectBoundingBox">

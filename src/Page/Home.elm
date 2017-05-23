@@ -1,16 +1,51 @@
-module Dash exposing (..)
+module Page.Home exposing (view, update, Model, Msg, init)
 
-import DemoChart
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Task exposing (Task)
+import Views.Page as Page
+import Page.Errored as Errored exposing (PageLoadError, pageLoadError)
+import Route exposing (Route)
+import Material
 import Material.Card as Card
-import Material.Elevation as Elevation
-import Material.Button as Button
 import Material.Grid as Grid
-import Material.Options as Options exposing (css, cs)
-import Models exposing (..)
-import Msgs exposing (..)
-import Routing exposing (benchmarkPath)
+import Material.Button as Button
+import Material.Elevation as Elevation
+import Material.Options as Options exposing (css, cs, attribute)
+import DemoChart
+
+
+-- MODEL --
+
+
+type alias Mdl =
+    Material.Model
+
+
+type alias Model =
+    { benchmarks : List String
+    , mdl : Material.Model
+    }
+
+
+init : Task PageLoadError Model
+init =
+    let
+        loadSources =
+            Task.succeed [ "" ]
+
+        mdl =
+            Task.succeed Material.model
+
+        handleLoadError _ =
+            pageLoadError Page.Home "Homepage is currently unavailable"
+    in
+        Task.map2 Model loadSources mdl
+            |> Task.mapError handleLoadError
+
+
+
+-- VIEW --
 
 
 view : Model -> Html Msg
@@ -35,7 +70,9 @@ view model =
                         model.mdl
                         [ Button.ripple
                         , Button.accent
-                        , Options.onClick (Msgs.ChangeLocation (benchmarkPath "P1B1"))
+                        , Button.link "#benchmark/P1B1"
+
+                        -- , Options.attribute <| Route.href (Route.Benchmark "P1B1")
                         ]
                         [ text "read more" ]
                     ]
@@ -72,3 +109,18 @@ view model =
                 ]
             ]
         ]
+
+
+
+-- UPDATE --
+
+
+type Msg
+    = Mdl (Material.Msg Msg)
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        Mdl msg_ ->
+            Material.update Mdl msg_ model
