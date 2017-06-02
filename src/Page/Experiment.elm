@@ -4,6 +4,10 @@ import Html exposing (..)
 import Task exposing (Task)
 import Views.Page as Page
 import Page.Errored as Errored exposing (PageLoadError, pageLoadError)
+import Data.Benchmark as Benchmark exposing (benchmarkIdToString)
+import Data.Experiment as Experiment exposing (Experiment)
+import Request.Experiment
+import Http
 import Material
 import Material.Grid as Grid
 import Material.Card as Card
@@ -19,22 +23,23 @@ import DemoChart exposing (renderLineChart, renderPieChart)
 
 
 type alias Model =
-    { experimentInfo : List String
+    { experimentInfo : Experiment
     , mdl : Material.Model
     }
 
 
-init : String -> Task PageLoadError Model
+init : Experiment.ExperimentId -> Task PageLoadError Model
 init experimentId =
     let
         loadExperiment =
-            Task.succeed [ "" ]
+            Request.Experiment.get experimentId
+                |> Http.toTask
 
         initMdl =
             Task.succeed Material.model
 
         handleLoadError _ =
-            pageLoadError Page.Other "Benchmark is currently unavailable."
+            pageLoadError Page.Other "Experiment is currently unavailable."
     in
         Task.map2 Model loadExperiment initMdl
             |> Task.mapError handleLoadError
@@ -46,27 +51,34 @@ init experimentId =
 
 view : Model -> Html Msg
 view model =
-    Grid.grid []
-        [ Grid.cell [ Grid.size Grid.All 12 ]
-            [ Card.view [ css "width" "100%", css "margin" "0 10px 10px 0", Elevation.e2 ]
-                [ Card.title [] [ text "P1B1 > Experiment Test 4" ]
-                , Card.text []
-                    [ Options.div [ cs "demo-graph" ]
-                        [ DemoChart.renderLineChart
-                        ]
-                    , Options.div [ cs "demo-chart" ]
-                        [ DemoChart.renderPieChart
+    let
+        exp =
+            model.experimentInfo
+
+        title =
+            (benchmarkIdToString exp.benchmark_id) ++ " > " ++ exp.experiment_title
+    in
+        Grid.grid []
+            [ Grid.cell [ Grid.size Grid.All 12 ]
+                [ Card.view [ css "width" "100%", css "margin" "0 10px 10px 0", Elevation.e2 ]
+                    [ Card.title [] [ text title ]
+                    , Card.text []
+                        [ Options.div [ cs "demo-graph" ]
+                            [ DemoChart.renderLineChart
+                            ]
+                        , Options.div [ cs "demo-chart" ]
+                            [ DemoChart.renderPieChart
+                            ]
                         ]
                     ]
-                ]
-            , Card.view [ css "width" "100%" ]
-                [ Card.text [ css "padding" "0", css "width" "100%" ]
-                    [ viewFilter model
-                    , renderTable model
+                , Card.view [ css "width" "100%" ]
+                    [ Card.text [ css "padding" "0", css "width" "100%" ]
+                        [ viewFilter model
+                        , renderTable model
+                        ]
                     ]
                 ]
             ]
-        ]
 
 
 

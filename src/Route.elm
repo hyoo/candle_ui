@@ -5,6 +5,7 @@ import Navigation exposing (Location)
 import Html exposing (Attribute)
 import Html.Attributes as Attr
 import Data.Benchmark as Benchmark
+import Data.Experiment as Experiment
 
 
 -- ROUTING --
@@ -13,7 +14,7 @@ import Data.Benchmark as Benchmark
 type Route
     = Home
     | Benchmark Benchmark.BenchmarkId
-    | Experiment String
+    | Experiment Experiment.ExperimentId
 
 
 route : Parser (Route -> a) a
@@ -21,7 +22,7 @@ route =
     oneOf
         [ Url.map Home (s "")
         , Url.map Benchmark (s "benchmark" </> Benchmark.benchmarkIdParser)
-        , Url.map Experiment (s "experiment" </> string)
+        , Url.map Experiment (s "experiment" </> Experiment.experimentIdParser)
         ]
 
 
@@ -41,7 +42,7 @@ routeToString page =
                     [ "benchmark", Benchmark.benchmarkIdToString id ]
 
                 Experiment id ->
-                    [ "experiment", id ]
+                    [ "experiment", Experiment.experimentIdToString id ]
     in
         "#/" ++ (String.join "/" pieces)
 
