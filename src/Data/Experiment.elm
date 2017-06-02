@@ -1,8 +1,10 @@
 module Data.Experiment exposing (Experiment, ExperimentId, decoder, experimentIdParser, experimentIdToString)
 
 import Data.Benchmark exposing (BenchmarkId, benchmarkIdDecoder)
+import Date exposing (Date)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline exposing (decode, required, optional, custom, hardcoded)
+import Json.Decode.Extra
 import UrlParser
 
 
@@ -19,8 +21,8 @@ type alias Experiment =
     , search_strategy : Maybe String
     , max_runs : Maybe Int
     , status : String
-    , start_time : Maybe String -- Date?
-    , end_time : Maybe String -- Date?
+    , start_time : Maybe Date
+    , end_time : Maybe Date
     , system_description : Maybe (List String)
     }
 
@@ -44,8 +46,8 @@ decoder =
         |> optional "search_strategy" (Decode.map Just Decode.string) Nothing
         |> optional "max_runs" (Decode.map Just Decode.int) Nothing
         |> required "status" Decode.string
-        |> optional "start_time" (Decode.map Just Decode.string) Nothing
-        |> optional "end_time" (Decode.map Just Decode.string) Nothing
+        |> optional "start_time" (Decode.map Just Json.Decode.Extra.date) Nothing
+        |> optional "end_time" (Decode.map Just Json.Decode.Extra.date) Nothing
         |> optional "system_description" (Decode.map Just (Decode.list Decode.string)) Nothing
 
 

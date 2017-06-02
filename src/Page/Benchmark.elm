@@ -22,6 +22,7 @@ import Material.Toggles as Toggles
 import Material.Button as Button
 import Material.Textfield as Textfield
 import Material.Table as Table
+import Util exposing (formateDate)
 
 
 -- MODEL --
@@ -212,8 +213,8 @@ renderRow model exp =
         , Table.td [] [ text (experimentIdToString exp.experiment_id) ]
         , Table.td [] [ text exp.experiment_title ]
         , Table.td [] [ text exp.status ]
-        , Table.td [] [ text (Maybe.withDefault "" exp.start_time) ]
-        , Table.td [] [ text (Maybe.withDefault "" exp.end_time) ]
+        , Table.td [] [ text (formateDate exp.start_time) ]
+        , Table.td [] [ text (formateDate exp.end_time) ]
         , Table.td []
             [ Button.render Mdl
                 [ 1 ]
