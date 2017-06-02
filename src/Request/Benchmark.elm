@@ -2,9 +2,9 @@ module Request.Benchmark exposing (..)
 
 import Http
 import Data.Benchmark as Benchmark exposing (benchmarkIdToString, Benchmark)
+import Data.Benchmark.Feed as Feed exposing (Feed)
 import HttpBuilder exposing (withExpect, withQueryParams, RequestBuilder, withBody)
 import Request.Helpers exposing (apiUrl)
-import Json.Decode as Decode
 
 
 -- SINGLE --
@@ -40,13 +40,14 @@ defaultListConfig =
     }
 
 
-list : ListConfig -> Http.Request (List Benchmark)
+list : ListConfig -> Http.Request Feed
 list config =
-    [ ( "limit", Just (toString config.limit) )
-    , ( "offset", Just (toString config.offset) )
+    [ ( "q", Just "*:*" )
+    , ( "rows", Just (toString config.limit) )
+    , ( "start", Just (toString config.offset) )
     ]
         |> List.filterMap maybeVal
-        |> buildFromQueryParams "/articles"
+        |> buildFromQueryParams "benchmark/"
         |> HttpBuilder.toRequest
 
 
@@ -64,14 +65,10 @@ maybeVal ( key, value ) =
             Just ( key, val )
 
 
-buildFromQueryParams : String -> List ( String, String ) -> RequestBuilder (List Benchmark)
+buildFromQueryParams : String -> List ( String, String ) -> RequestBuilder Feed
 buildFromQueryParams url queryParams =
-    let
-        expect =
-            Decode.list Benchmark.decoder
-    in
-        url
-            |> apiUrl
-            |> HttpBuilder.get
-            |> withExpect (Http.expectJson expect)
-            |> withQueryParams queryParams
+    url
+        |> apiUrl
+        |> HttpBuilder.get
+        |> withExpect (Http.expectJson Feed.decoder)
+        |> withQueryParams queryParams

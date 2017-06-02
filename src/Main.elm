@@ -8,7 +8,6 @@ import Page.Benchmark as Benchmark
 import Page.Experiment as Experiment
 import Page.Errored as Errored exposing (PageLoadError)
 import Page.NotFound as NotFound
-import Data.Benchmark exposing (BenchmarkId)
 import Task
 import Route exposing (Route)
 

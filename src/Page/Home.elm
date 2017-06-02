@@ -5,7 +5,10 @@ import Html.Attributes exposing (..)
 import Task exposing (Task)
 import Views.Page as Page
 import Page.Errored as Errored exposing (PageLoadError, pageLoadError)
-import Route exposing (Route)
+import Data.Benchmark as Benchmark exposing (Benchmark, benchmarkIdToString)
+import Data.Benchmark.Feed as Feed exposing (Feed)
+import Request.Benchmark
+import Http
 import Material
 import Material.Card as Card
 import Material.Grid as Grid
@@ -23,7 +26,7 @@ type alias Mdl =
 
 
 type alias Model =
-    { benchmarks : List String
+    { feed : Feed
     , mdl : Material.Model
     }
 
@@ -31,8 +34,12 @@ type alias Model =
 init : Task PageLoadError Model
 init =
     let
+        defaultListConfig =
+            Request.Benchmark.defaultListConfig
+
         loadSources =
-            Task.succeed [ "" ]
+            Request.Benchmark.list defaultListConfig
+                |> Http.toTask
 
         mdl =
             Task.succeed Material.model
@@ -51,61 +58,39 @@ init =
 view : Model -> Html Msg
 view model =
     Grid.grid []
-        [ Grid.cell [ Grid.size Grid.All 12 ]
+        (Grid.cell [ Grid.size Grid.All 12 ]
             [ Card.view [ css "width" "100%", css "height" "260px", Elevation.e2 ]
                 [ Card.text []
                     [ div [ class "demo-graph" ] [ DemoChart.renderLineChart ]
                     ]
                 ]
             ]
-        , Grid.cell [ Grid.size Grid.All 4 ]
-            [ Card.view [ Elevation.e2 ]
-                [ Card.title [] [ Card.head [] [ text "P1B1" ] ]
-                , Card.text []
-                    [ text "Autoencoder Compressed Representation for Gene Expression"
-                    ]
-                , Card.actions [ Card.border ]
-                    [ Button.render Mdl
-                        [ 1, 0 ]
-                        model.mdl
-                        [ Button.ripple
-                        , Button.accent
-                        , Button.link "#benchmark/P1B1"
+            :: viewBenchmarks model
+        )
 
-                        -- , Options.attribute <| Route.href (Route.Benchmark "P1B1")
-                        ]
-                        [ text "read more" ]
-                    ]
+
+viewBenchmarks : Model -> List (Grid.Cell Msg)
+viewBenchmarks model =
+    List.map (viewBenchmarkCard model) model.feed.benchmarks
+
+
+viewBenchmarkCard : Model -> Benchmark -> Grid.Cell Msg
+viewBenchmarkCard model benchmark =
+    Grid.cell [ Grid.size Grid.All 4 ]
+        [ Card.view [ Elevation.e2 ]
+            [ Card.title [] [ Card.head [] [ text (benchmarkIdToString benchmark.benchmark_id) ] ]
+            , Card.text []
+                [ text benchmark.benchmark_title
                 ]
-            ]
-        , Grid.cell [ Grid.size Grid.All 4 ]
-            [ Card.view [ Elevation.e2 ]
-                [ Card.title [] [ Card.head [] [ text "P1B2" ] ]
-                , Card.text []
-                    [ text "Sparse Classifier Disease Type Prediction from Somatic SNPs"
+            , Card.actions [ Card.border ]
+                [ Button.render Mdl
+                    [ 1, 0 ]
+                    model.mdl
+                    [ Button.ripple
+                    , Button.accent
+                    , Button.link ("#benchmark/" ++ (benchmarkIdToString benchmark.benchmark_id))
                     ]
-                , Card.actions [ Card.border ]
-                    [ Button.render Mdl
-                        [ 2, 0 ]
-                        model.mdl
-                        [ Button.ripple, Button.accent ]
-                        [ text "read more" ]
-                    ]
-                ]
-            ]
-        , Grid.cell [ Grid.size Grid.All 4 ]
-            [ Card.view [ Elevation.e2 ]
-                [ Card.title [] [ Card.head [] [ text "P1B3" ] ]
-                , Card.text []
-                    [ text "MLP Regression Drug Response Prediction"
-                    ]
-                , Card.actions [ Card.border ]
-                    [ Button.render Mdl
-                        [ 3, 0 ]
-                        model.mdl
-                        [ Button.ripple, Button.accent ]
-                        [ text "read more" ]
-                    ]
+                    [ text "read more" ]
                 ]
             ]
         ]
