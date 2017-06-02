@@ -7,7 +7,11 @@ import Task exposing (Task)
 import Views.Page as Page
 import Page.Errored as Errored exposing (PageLoadError, pageLoadError)
 import Data.Benchmark as Benchmark exposing (Benchmark)
+import Data.Experiment as Experiment exposing (Experiment, experimentIdToString)
+import Data.Experiment.Feed as Feed exposing (Feed)
 import Request.Benchmark
+import Request.Experiment
+import Route
 import Http
 import Material
 import Material.Grid as Grid
@@ -25,6 +29,7 @@ import Material.Table as Table
 
 type alias Model =
     { benchmarkInfo : Benchmark
+    , feed : Feed
     , mdl : Material.Model
     , toggles : Array.Array Bool
     }
@@ -37,6 +42,13 @@ init benchmarkId =
             Request.Benchmark.get benchmarkId
                 |> Http.toTask
 
+        defaultListConfig =
+            Request.Experiment.defaultListConfig
+
+        loadExperiments =
+            Request.Experiment.list { defaultListConfig | benchmark_id = (Just benchmarkId) }
+                |> Http.toTask
+
         initMdl =
             Task.succeed Material.model
 
@@ -46,7 +58,7 @@ init benchmarkId =
         handleLoadError _ =
             pageLoadError Page.Other "Benchmark is currently unavailable."
     in
-        Task.map3 Model loadBenchmark initMdl initToggle
+        Task.map4 Model loadBenchmark loadExperiments initMdl initToggle
             |> Task.mapError handleLoadError
 
 
@@ -189,42 +201,24 @@ renderTable model =
                 , Table.th [] [ text "Action" ]
                 ]
             ]
-
-        -- , Table.tbody [] (List.map (renderRow model) patients)
-        , Table.tbody [] [ renderRow model ]
+        , Table.tbody [] (List.map (renderRow model) model.feed.experiments)
         ]
 
 
-
--- patientRow : Model -> Patient -> Html Msg
--- patientRow model patient =
---     Table.tr []
---         [ Table.td [] [ text patient.vendor_sample_number ]
---         , Table.td [] [ text patient.institution ]
---         , Table.td [] [ text patient.cancer_diagnosis ]
---         , Table.td [] [ text patient.histology ]
---         , Table.td [] [ text patient.diagnosis ]
---         , Table.td [] [ text (dateToString patient.specimen_ship_date) ]
---         , Table.td [] [ text patient.adequate_for_analysis ]
---         , Table.td [] [ text patient.inadequate_details ]
---         , Table.td [] [ text (dateToString patient.date_results_returned_to_institution) ]
---         ]
-
-
-renderRow : Model -> Html Msg
-renderRow model =
+renderRow : Model -> Experiment -> Html Msg
+renderRow model exp =
     Table.tr []
-        [ Table.td [] [ text "p1b1_ds1" ]
-        , Table.td [] [ text "p1b1_es1_exp1_0004" ]
-        , Table.td [] [ text "Experiment Test 4" ]
-        , Table.td [] [ text "Finished" ]
-        , Table.td [] [ text "2017-05-16" ]
-        , Table.td [] [ text "2017-05-17" ]
+        [ Table.td [] [ text (Maybe.withDefault "" exp.dataset_id) ]
+        , Table.td [] [ text (experimentIdToString exp.experiment_id) ]
+        , Table.td [] [ text exp.experiment_title ]
+        , Table.td [] [ text exp.status ]
+        , Table.td [] [ text (Maybe.withDefault "" exp.start_time) ]
+        , Table.td [] [ text (Maybe.withDefault "" exp.end_time) ]
         , Table.td []
             [ Button.render Mdl
                 [ 1 ]
                 model.mdl
-                [ Button.ripple, Button.link "/#experiment/p1b1_es1_exp1_0004" ]
+                [ Button.ripple, Button.link ("/#experiment/" ++ (experimentIdToString exp.experiment_id)) ]
                 [ text "view" ]
             ]
         ]

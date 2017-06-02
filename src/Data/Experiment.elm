@@ -8,13 +8,12 @@ import UrlParser
 
 type alias Experiment =
     { benchmark_id : BenchmarkId
-
-    -- dataset_id: DatasetId
+    , dataset_id : Maybe String
     , experiment_id : ExperimentId
     , experiment_title : String
     , description : Maybe String
-    , optimization_package_name: Maybe String
-    , optimization_package_version: Maybe String
+    , optimization_package_name : Maybe String
+    , optimization_package_version : Maybe String
     , objective_function : Maybe String
     , search_space : Maybe (List String)
     , search_strategy : Maybe String
@@ -22,7 +21,7 @@ type alias Experiment =
     , status : String
     , start_time : Maybe String -- Date?
     , end_time : Maybe String -- Date?
-    , system_description: Maybe (List String)
+    , system_description : Maybe (List String)
     }
 
 
@@ -34,6 +33,7 @@ decoder : Decoder Experiment
 decoder =
     decode Experiment
         |> required "benchmark_id" benchmarkIdDecoder
+        |> optional "dataset_id" (Decode.map Just Decode.string) Nothing
         |> required "experiment_id" experimentIdDecoder
         |> required "experiment_title" Decode.string
         |> optional "description" (Decode.map Just Decode.string) Nothing
