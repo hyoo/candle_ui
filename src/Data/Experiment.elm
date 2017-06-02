@@ -1,4 +1,4 @@
-module Data.Experiment exposing (Experiment, ExperimentId, decoder, experimentIdParser, experimentIdToString)
+module Data.Experiment exposing (Experiment, ExperimentId, decoder, experimentIdDecoder, experimentIdParser, experimentIdToString)
 
 import Data.Benchmark exposing (BenchmarkId, benchmarkIdDecoder)
 import Date exposing (Date)

@@ -6,7 +6,11 @@ import Views.Page as Page
 import Page.Errored as Errored exposing (PageLoadError, pageLoadError)
 import Data.Benchmark as Benchmark exposing (benchmarkIdToString)
 import Data.Experiment as Experiment exposing (Experiment)
+import Data.Run as Run exposing (runIdToString, Run)
+import Data.Run.Feed as Feed exposing (Feed)
 import Request.Experiment
+import Request.Run
+import Util
 import Http
 import Material
 import Material.Grid as Grid
@@ -24,6 +28,7 @@ import DemoChart exposing (renderLineChart, renderPieChart)
 
 type alias Model =
     { experimentInfo : Experiment
+    , feed : Feed
     , mdl : Material.Model
     }
 
@@ -35,13 +40,20 @@ init experimentId =
             Request.Experiment.get experimentId
                 |> Http.toTask
 
+        defaultListConfig =
+            Request.Run.defaultListConfig
+
+        loadRuns =
+            Request.Run.list { defaultListConfig | experiment_id = (Just experimentId) }
+                |> Http.toTask
+
         initMdl =
             Task.succeed Material.model
 
         handleLoadError _ =
             pageLoadError Page.Other "Experiment is currently unavailable."
     in
-        Task.map2 Model loadExperiment initMdl
+        Task.map3 Model loadExperiment loadRuns initMdl
             |> Task.mapError handleLoadError
 
 
@@ -141,31 +153,39 @@ renderTable model =
                 , Table.th [] [ text "Action" ]
                 ]
             ]
-        , Table.tbody [] [ renderRow model ]
+        , Table.tbody [] (List.map (renderRow model) model.feed.runs)
         ]
 
 
-renderRow : Model -> Html Msg
-renderRow model =
+renderRow : Model -> Run -> Html Msg
+renderRow model run =
     Table.tr []
-        [ Table.td [] [ text "p1b1_es1_exp1_0004.0203" ]
-        , Table.td [] [ text "2017-5-17:16:32:10" ]
-        , Table.td [] [ text "-" ]
-        , Table.td [] [ text "01:23:45" ]
-        , Table.td [] [ text "Running" ]
-        , Table.td [] [ text "0.87" ]
-        , Table.td [] [ text "0.00242" ]
+        [ Table.td [] [ text (runIdToString run.run_id) ]
+        , Table.td [] [ text (Util.formatDateTime run.start_time) ]
+        , Table.td [] [ text (Util.formatDateTime run.end_time) ]
+        , Table.td [] [ text (toString (Maybe.withDefault 0.0 run.runtime_hours)) ]
+        , Table.td [] [ text (Maybe.withDefault "" run.status) ]
+        , Table.td [] [ text (renderMaybeFloat run.training_accuracy) ]
+        , Table.td [] [ text (renderMaybeFloat run.training_loss) ]
         , Table.td []
             [ Button.render Mdl
                 [ 1 ]
                 model.mdl
-                [ Button.ripple --, Options.onClick (Msgs.ChangeLocation (experimentPath "p1b1_es1_exp1_0004"))
-
-                -- , Dialog.openOn "click"
+                [ Button.ripple
                 ]
                 [ text "detail" ]
             ]
         ]
+
+
+renderMaybeFloat : Maybe Float -> String
+renderMaybeFloat val =
+    case val of
+        Nothing ->
+            "-"
+
+        Just value ->
+            toString value
 
 
 
