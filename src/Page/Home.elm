@@ -8,6 +8,7 @@ import Page.Errored as Errored exposing (PageLoadError, pageLoadError)
 import Data.Benchmark as Benchmark exposing (Benchmark, benchmarkIdToString)
 import Data.Benchmark.Feed as Feed exposing (Feed)
 import Request.Benchmark
+import Route
 import Http
 import Material
 import Material.Card as Card
@@ -88,7 +89,7 @@ viewBenchmarkCard model benchmark =
                     model.mdl
                     [ Button.ripple
                     , Button.accent
-                    , Button.link ("#benchmark/" ++ (benchmarkIdToString benchmark.benchmark_id))
+                    , Button.link (Route.routeToString (Route.Benchmark benchmark.benchmark_id))
                     ]
                     [ text "read more" ]
                 ]

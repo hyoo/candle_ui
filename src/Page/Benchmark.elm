@@ -220,7 +220,7 @@ renderRow model exp =
                 [ 1 ]
                 model.mdl
                 [ Button.ripple
-                , Button.link ("/#experiment/" ++ (experimentIdToString exp.experiment_id))
+                , Button.link (Route.routeToString (Route.Experiment exp.experiment_id))
                 ]
                 [ text "view" ]
             ]
