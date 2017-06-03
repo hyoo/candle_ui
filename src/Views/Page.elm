@@ -28,7 +28,7 @@ frame isLoading page content =
             [ viewHeader page isLoading
             , content
 
-            -- viewFooter
+            -- , viewFooter
             ]
 
 
@@ -36,7 +36,7 @@ viewHeader : ActivePage -> Bool -> Html msg
 viewHeader page isLoading =
     nav [ class "navbar navbar-light" ]
         [ div [ class "container" ]
-            [ a [ class "navbar-brand", Route.href Route.Home ] [ text "ECP-CANDLE" ]
+            [ a [ class "navbar-brand", Route.href Route.Home ] [ text "CANDLE" ]
             , ul [ class "nav navbar-nav" ] [ (navbarLink (page == Home) Route.Home [ text "Home" ]) ]
             ]
         ]
