@@ -32,6 +32,7 @@ get runId =
 type alias ListConfig =
     { benchmark_id : Maybe BenchmarkId
     , experiment_id : Maybe ExperimentId
+    , keyword : Maybe String
     , limit : Int
     , offset : Int
     }
@@ -41,6 +42,7 @@ defaultListConfig : ListConfig
 defaultListConfig =
     { benchmark_id = Nothing
     , experiment_id = Nothing
+    , keyword = Nothing
     , limit = 20
     , offset = 0
     }
@@ -50,7 +52,16 @@ buildQuery : ListConfig -> Maybe String
 buildQuery config =
     case config.experiment_id of
         Just id ->
-            Just ("experiment_id:" ++ (experimentIdToString id))
+            let
+                keyword =
+                    case config.keyword of
+                        Just keyword ->
+                            " AND " ++ keyword
+
+                        Nothing ->
+                            ""
+            in
+                Just ("experiment_id:" ++ (experimentIdToString id) ++ keyword)
 
         Nothing ->
             Nothing
