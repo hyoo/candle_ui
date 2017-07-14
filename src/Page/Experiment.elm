@@ -20,10 +20,18 @@ import Material.Elevation as Elevation
 import Material.Button as Button
 import Material.Textfield as Textfield
 import Material.Table as Table
+import Material.Dialog as Dialog
 import DemoChart exposing (renderLineChart, renderPieChart)
 
 
 -- MODEL --
+
+
+type alias DialogModel =
+    { title : Maybe String
+    , progress : Maybe (List String)
+    , parameters : Maybe (List String)
+    }
 
 
 type alias Model =
@@ -31,6 +39,7 @@ type alias Model =
     , feed : Feed
     , listConfig : ListConfig
     , mdl : Material.Model
+    , dialogModel : DialogModel
     }
 
 
@@ -51,10 +60,13 @@ init experimentId =
         initMdl =
             Task.succeed Material.model
 
+        initDialogModel =
+            Task.succeed (DialogModel Nothing Nothing Nothing)
+
         handleLoadError _ =
             pageLoadError Page.Other "Experiment is currently unavailable."
     in
-        Task.map4 Model loadExperiment loadRuns (Task.succeed listConfig) initMdl
+        Task.map5 Model loadExperiment loadRuns (Task.succeed listConfig) initMdl initDialogModel
             |> Task.mapError handleLoadError
 
 
@@ -73,7 +85,8 @@ view model =
     in
         Grid.grid []
             [ Grid.cell [ Grid.size Grid.All 12 ]
-                [ Card.view [ css "width" "100%", css "margin" "0 10px 10px 0", Elevation.e2 ]
+                [ renderDialog model
+                , Card.view [ css "width" "100%", css "margin" "0 10px 10px 0", Elevation.e2 ]
                     [ Card.title [] [ text title ]
                     , Card.text []
                         [ Options.div [ cs "demo-graph" ]
@@ -249,10 +262,61 @@ renderRow model run =
                 [ 1 ]
                 model.mdl
                 [ Button.ripple
+                , Dialog.openOn "click"
+                , onClick (OnDialogOpen run)
                 ]
                 [ text "detail" ]
             ]
         ]
+
+
+renderDialog : Model -> Html Msg
+renderDialog model =
+    let
+        title =
+            case model.dialogModel.title of
+                Just val ->
+                    val
+
+                Nothing ->
+                    ""
+
+        progressDiv =
+            case model.dialogModel.progress of
+                Just list ->
+                    div []
+                        [ h4 [] [ text "Progress" ]
+                        , pre [] [ text (String.join "\n" (Maybe.withDefault [ "" ] model.dialogModel.progress)) ]
+                        ]
+
+                Nothing ->
+                    text ""
+
+        parameterDiv =
+            case model.dialogModel.parameters of
+                Just list ->
+                    div []
+                        [ h4 [] [ text "Parameters" ]
+                        , ul [] (List.map (\item -> li [] [ text item ]) list)
+                        ]
+
+                Nothing ->
+                    text ""
+    in
+        Dialog.view [ Options.css "width" "800px" ]
+            [ Dialog.title [] [ text title ]
+            , Dialog.content []
+                [ parameterDiv
+                , progressDiv
+                ]
+            , Dialog.actions []
+                [ Button.render Mdl
+                    [ 2 ]
+                    model.mdl
+                    [ Dialog.closeOn "click" ]
+                    [ text "close" ]
+                ]
+            ]
 
 
 renderMaybeFloat : Maybe Float -> String
@@ -274,6 +338,7 @@ type Msg
     | OnTableSearch String
     | OnTablePaging Int
     | FeedLoadCompleted (Result Http.Error Feed)
+    | OnDialogOpen Run
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -322,6 +387,13 @@ update msg model =
                     Debug.log "Feed error" error
             in
                 ( model, Cmd.none )
+
+        OnDialogOpen runInfo ->
+            let
+                dialogModel =
+                    DialogModel (Just (runIdToString runInfo.run_id)) runInfo.run_progress runInfo.parameters
+            in
+                ( { model | dialogModel = dialogModel }, Cmd.none )
 
         Mdl msg_ ->
             Material.update Mdl msg_ model

@@ -90,35 +90,6 @@ viewPage isLoading page =
                     |> Html.map ExperimentMsg
 
 
-
--- element : Model -> Html Msg
--- element model =
---     Dialog.view [ Options.css "width" "800px" ]
---         [ Dialog.title [] [ text "p1b1_es1_exp1_0004.0203" ]
---         , Dialog.content []
---             [ pre [] [ text """
--- Using Theano backend.
--- Using cuDNN version 5110 on context None
--- Mapped name None to device cuda: Tesla K80 (0000:07:00.0)
--- Epoch 1/2
--- 2400/2400 [==============================] - 6s - loss: 0.0420 - val_loss: 0.0385
--- Epoch 2/2
--- 2400/2400 [==============================] - 6s - loss: 0.0377 - val_loss: 0.0378
--- """ ]
---             ]
---         , Dialog.actions []
---             [ Button.render Msgs.Mdl
---                 [ 2 ]
---                 model.mdl
---                 [ Dialog.closeOn "click" ]
---                 [ text "close" ]
---             ]
---         ]
--- benchmarkView : String -> Html msg
--- benchmarkView id =
---     div [] [ text ("viewing benchmark " ++ id) ]
-
-
 getPage : PageState -> Page
 getPage pageStage =
     case pageStage of
