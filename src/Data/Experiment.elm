@@ -12,7 +12,7 @@ type alias Experiment =
     { benchmark_id : BenchmarkId
     , dataset_id : Maybe String
     , experiment_id : ExperimentId
-    , experiment_title : String
+    , experiment_title : Maybe String
     , description : Maybe String
     , optimization_package_name : Maybe String
     , optimization_package_version : Maybe String
@@ -37,7 +37,7 @@ decoder =
         |> required "benchmark_id" benchmarkIdDecoder
         |> optional "dataset_id" (Decode.map Just Decode.string) Nothing
         |> required "experiment_id" experimentIdDecoder
-        |> required "experiment_title" Decode.string
+        |> optional "experiment_title" (Decode.map Just Decode.string) Nothing
         |> optional "description" (Decode.map Just Decode.string) Nothing
         |> optional "optimization_package_name" (Decode.map Just Decode.string) Nothing
         |> optional "optimization_package_name_version" (Decode.map Just Decode.string) Nothing

@@ -10,7 +10,7 @@ import UrlParser
 
 
 type alias Run =
-    { benchmark_id : BenchmarkId
+    { benchmark_id : Maybe BenchmarkId
     , dataset_id : Maybe String
     , experiment_id : ExperimentId
     , run_id : RunId
@@ -38,7 +38,7 @@ type alias Run =
 decoder : Decoder Run
 decoder =
     decode Run
-        |> required "benchmark_id" benchmarkIdDecoder
+        |> optional "benchmark_id" (Decode.map Just benchmarkIdDecoder) Nothing
         |> optional "dataset_id" (Decode.map Just Decode.string) Nothing
         |> required "experiment_id" experimentIdDecoder
         |> required "run_id" runIdDecoder

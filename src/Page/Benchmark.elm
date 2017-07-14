@@ -84,15 +84,15 @@ view model =
                     , Card.text []
                         [ p []
                             [ strong [] [ text "Overview: " ]
-                            , text this.overview
+                            , text (Maybe.withDefault "" this.overview)
                             ]
                         , p []
                             [ strong [] [ text "Relationship to core problem: " ]
-                            , text this.relavance
+                            , text (Maybe.withDefault "" this.relavance)
                             ]
                         , p [ hidden (getToggleValue 0 model) ]
                             [ strong [] [ text "Expected outcome: " ]
-                            , text this.expected_outcome
+                            , text (Maybe.withDefault "" this.expected_outcome)
                             ]
                         , p [ hidden (getToggleValue 0 model) ] [ h4 [] [ text "Benchmark Specs Requirements" ] ]
                         , p [ hidden (getToggleValue 0 model) ]
@@ -131,16 +131,21 @@ view model =
             ]
 
 
-renderListItems : String -> List String -> Html Msg
-renderListItems title items =
-    let
-        list =
-            List.map (\item -> li [] [ text item ]) items
-    in
-        h5 []
-            [ text title
-            , ul [] list
-            ]
+renderListItems : String -> Maybe (List String) -> Html Msg
+renderListItems title maybe_items =
+    case maybe_items of
+        Just items ->
+            let
+                list =
+                    List.map (\item -> li [] [ text item ]) items
+            in
+                h5 []
+                    [ text title
+                    , ul [] list
+                    ]
+
+        Nothing ->
+            text ""
 
 
 
@@ -288,7 +293,7 @@ renderRow model exp =
     Table.tr []
         [ Table.td [] [ text (Maybe.withDefault "" exp.dataset_id) ]
         , Table.td [] [ text (experimentIdToString exp.experiment_id) ]
-        , Table.td [] [ text exp.experiment_title ]
+        , Table.td [] [ text (Maybe.withDefault "" exp.experiment_title) ]
         , Table.td [] [ text exp.status ]
         , Table.td [] [ text (Util.formatDateTime exp.start_time) ]
         , Table.td [] [ text (Util.formatDateTime exp.end_time) ]
@@ -326,6 +331,7 @@ update msg model =
                     case str of
                         "" ->
                             Nothing
+
                         _ ->
                             Just str
 
@@ -338,7 +344,7 @@ update msg model =
                 subCmd =
                     updateFeed newListConfig
             in
-              ( { model | listConfig = newListConfig }, subCmd)
+                ( { model | listConfig = newListConfig }, subCmd )
 
         OnTablePaging offset ->
             let

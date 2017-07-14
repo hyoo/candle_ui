@@ -69,7 +69,7 @@ view model =
             model.experimentInfo
 
         title =
-            (benchmarkIdToString exp.benchmark_id) ++ " > " ++ exp.experiment_title
+            (benchmarkIdToString exp.benchmark_id) ++ " > " ++ (Maybe.withDefault "" exp.experiment_title)
     in
         Grid.grid []
             [ Grid.cell [ Grid.size Grid.All 12 ]
