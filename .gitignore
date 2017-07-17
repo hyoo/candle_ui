@@ -3,3 +3,4 @@ elm-stuff/
 api/
 yarn.lock
 node_modules/
+.vscode/
